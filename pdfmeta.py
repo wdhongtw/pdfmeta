@@ -3,12 +3,8 @@
 
 import json
 from subprocess import Popen, PIPE
-import sys
 
-class PdfMeta(object):
-    '''Class for metadata object'''
-
-    tags = ['Author', 'Title', 'Subject', 'Keywords']
+META_TAGS = ['Author', 'Title', 'Subject', 'Keywords']
 
 
 def read_meta(filename):
@@ -17,25 +13,31 @@ def read_meta(filename):
     proc = Popen(['exiftool', '-j', filename], stdout=PIPE, stderr=PIPE)
     outs, _ = proc.communicate()
     # take 1st element from list because we only parse one file one time
-    allmeta = json.loads(bytes.decode(outs, encoding=sys.getdefaultencoding()))[0]
+    allmeta = json.loads(bytes.decode(outs))[0]
     meta = {}
     for key in allmeta:
-        if key in PdfMeta.tags:
+        if key in META_TAGS:
             meta[key] = allmeta[key]
     return meta
+
 
 def write_meta(filename, meta):
     '''Write metadata into pdf'''
 
     # Add SourceFile tag, man exiftool for more informations
     meta['SourceFile'] = '*'
-    proc = Popen(['exiftool', '-j=-', '-overwrite_original', filename], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    proc.communicate(bytes(json.dumps([meta]), encoding=sys.getdefaultencoding()))
+    proc = Popen(['exiftool', '-j=-', '-overwrite_original', filename],
+                 stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    proc.communicate(str.encode(json.dumps([meta])))
     return
 
+
 def print_meta(meta):
+    '''Print all metadata'''
+
     for tag in meta:
         print(tag + ': ' + str(meta[tag]))
+
 
 def main():
     '''The main function'''
