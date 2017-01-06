@@ -28,15 +28,30 @@ def write_meta(filename, meta):
     meta['SourceFile'] = '*'
     proc = Popen(['exiftool', '-j=-', '-overwrite_original', filename],
                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    proc.communicate(str.encode(json.dumps([meta])))
-    return
+    _, errs = proc.communicate(str.encode(json.dumps([meta])))
+    return bytes.decode(errs)
 
 
 def print_meta(meta):
     '''Print all metadata'''
 
-    for tag in meta:
-        print(tag + ': ' + str(meta[tag]))
+    for tag in META_TAGS:
+        if tag in meta.keys():
+            print(tag + ': ' + repr(meta[tag]))
+    return
+
+
+def edit_meta(meta):
+    '''Edit metadata'''
+
+    for tag in META_TAGS:
+        if tag in meta.keys():
+            print(tag + ': ' + repr(meta[tag]))
+            try:
+                meta[tag] = eval(input(tag + ': '))
+            except EOFError:
+                print('Tag value unchange')
+    return
 
 
 def main():
@@ -45,12 +60,13 @@ def main():
     print('Read metadata from README.pdf')
     meta = read_meta('README.pdf')
     print_meta(meta)
-    meta['Title'] = 'PDFMeta: Simple Utility for Manipulating Metadata in PDF File'
+    meta['Title'] = 'PDFMeta: Utility for Manipulating Metadata in PDF File'
     meta['Author'] = 'Weida Hong'
     meta['Subject'] = 'Utility'
     meta['Keywords'] = ['pdf', 'metadata']
-    print('Write metadata from README.pdf')
     print_meta(meta)
+    edit_meta(meta)
+    print('Write metadata from README.pdf')
     write_meta('README.pdf', meta)
     return
 
