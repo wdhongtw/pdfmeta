@@ -3,6 +3,7 @@
 
 import json
 from subprocess import Popen, PIPE
+import sys
 
 META_TAGS = ['Author', 'Title', 'Subject', 'Keywords']
 
@@ -54,8 +55,8 @@ def edit_meta(meta):
     return
 
 
-def main():
-    '''The main function'''
+def test():
+    '''Test functionality'''
 
     print('Read metadata from README.pdf')
     meta = read_meta('README.pdf')
@@ -68,6 +69,16 @@ def main():
     edit_meta(meta)
     print('Write metadata from README.pdf')
     write_meta('README.pdf', meta)
+    return
+
+
+def main():
+    '''The main function'''
+
+    [filename] = sys.argv[1:]
+    meta = read_meta(filename)
+    edit_meta(meta)
+    write_meta(filename, meta)
     return
 
 if __name__ == '__main__':
