@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 import sys
 
 META_TAGS = ['Author', 'Title', 'Subject', 'Keywords']
+USAGE_MSG = 'Usage: pdfmeta <filename>'
 
 
 class PdfMeta(dict):
@@ -85,7 +86,11 @@ def test():
 def main():
     '''The main function'''
 
-    [filename] = sys.argv[1:]
+    try:
+        [filename] = sys.argv[1:]
+    except ValueError:
+        print(USAGE_MSG)
+        return
     meta = read_meta(filename)
     edit_meta(meta)
     write_meta(filename, meta)
