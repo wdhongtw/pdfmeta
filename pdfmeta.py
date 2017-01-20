@@ -8,6 +8,16 @@ import sys
 META_TAGS = ['Author', 'Title', 'Subject', 'Keywords']
 
 
+class PdfMeta(dict):
+    """PDF metadata class"""
+    def __init__(self, author=None, title=None, subject=None, keywords=None):
+        super(PdfMeta, self).__init__()
+        self['Author'] = author
+        self['Title'] = title
+        self['Subject'] = subject
+        self['Keywords'] = keywords
+
+
 def read_meta(filename):
     '''Read metadata from pdf'''
 
@@ -15,7 +25,7 @@ def read_meta(filename):
     outs, _ = proc.communicate()
     # take 1st element from list because we only parse one file one time
     allmeta = json.loads(bytes.decode(outs))[0]
-    meta = {}
+    meta = PdfMeta()
     for key in allmeta:
         if key in META_TAGS:
             meta[key] = allmeta[key]
@@ -38,7 +48,7 @@ def print_meta(meta):
 
     for tag in META_TAGS:
         if tag in meta.keys():
-            print(tag + ': ' + repr(meta[tag]))
+            print(tag + ': ' + json.dumps(meta[tag]))
     return
 
 
@@ -47,9 +57,9 @@ def edit_meta(meta):
 
     for tag in META_TAGS:
         if tag in meta.keys():
-            print(tag + ': ' + repr(meta[tag]))
+            print(tag + ': ' + json.dumps(meta[tag]))
             try:
-                meta[tag] = eval(input(tag + ': '))
+                meta[tag] = json.loads(input(tag + ': '))
             except EOFError:
                 print('Tag value unchange')
     return
